@@ -1,33 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:projeto_perguntas/questionario.dart';
 import 'package:projeto_perguntas/resultado.dart';
-import './resposta.dart';
+import 'package:projeto_perguntas/resposta.dart';
 
 void main() => runApp(const PerguntaApp());
 
 class _PerguntaAppState extends State<PerguntaApp> {
   var _perguntaSelecionada = 0;
+  int _pontuacaoTotal = 0;
   final _perguntas = const [
     {
       'texto': 'Qual a sua cor favorita?',
-      'respostas': ['Azul', 'Amarelo', 'Vermelho', 'Roxo']
+      'respostas': [
+        {'texto': 'Azul', 'valor': 8},
+        {'texto': 'Amarelo', 'valor': 5},
+        {'texto': 'Vermelho', 'valor': 7},
+        {'texto': 'Roxo', 'valor': 10},
+      ],
     },
     {
       'texto': 'Qual o seu animal favorito?',
-      'respostas': ['Corvo', 'Capivara', 'Puma', 'Esquilo']
+      'respostas': [
+        {'texto': 'Corvo', 'valor': 10},
+        {'texto': 'Capivara', 'valor': 8},
+        {'texto': 'Esquilo', 'valor': 7},
+        {'texto': 'Puma', 'valor': 5},
+      ],
     },
     {
-      'texto': 'Qual o seu amigo favorito?',
-      'respostas': ['Marcos', 'Paulo', 'Wagner', 'Gabriela']
+      'texto': 'Qual a sua estação do ano favorito?',
+      'respostas': [
+        {'texto': 'Verão', 'valor': 5},
+        {'texto': 'Outono', 'valor': 8},
+        {'texto': 'Inverno', 'valor': 10},
+        {'texto': 'Primavera', 'valor': 7},
+      ],
     }
   ];
 
-  void _responder() {
+  void _responder(int pontuacao) {
     if (temPerguntaSelecionada) {
       setState(() {
         _perguntaSelecionada++;
+        _pontuacaoTotal += pontuacao;
       });
     }
+
+    print(_pontuacaoTotal);
+  }
+
+  void _reiniciarQuestionario(){
+    setState(() {
+      _perguntaSelecionada = 0;
+      _pontuacaoTotal = 0;
+    });
   }
 
   get temPerguntaSelecionada {
@@ -39,7 +65,9 @@ class _PerguntaAppState extends State<PerguntaApp> {
     var respostas = temPerguntaSelecionada
         ? _perguntas[_perguntaSelecionada]
             .cast()['respostas']
-            .map((t) => Resposta(t, _responder))
+            .map((resp) {
+              return Resposta(resp['texto'], () => _responder(resp['valor'])); //para passar função com parametros como paramentro para outra, precisa criar arr func e chamar a função dentro 
+            })
         : [];
 
     return MaterialApp(
@@ -49,7 +77,7 @@ class _PerguntaAppState extends State<PerguntaApp> {
         ),
         body: temPerguntaSelecionada
             ? Questionario(_perguntas, _perguntaSelecionada, respostas)
-            : Resultado("Parabéns!!!"),
+            : Resultado(_pontuacaoTotal, _reiniciarQuestionario),
       ),
     );
   }
